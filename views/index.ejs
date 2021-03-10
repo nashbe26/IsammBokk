@@ -1,0 +1,18 @@
+<html>
+    <head></head>
+    <body>
+        <p id="notification">Pas de notification en attente</p>
+    </body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    const socket = io();
+
+
+    socket.on('detect',(data)=>{
+        // document.getElementById('notification').innerHTML=`<p>User ${data.user} have posted new sotry check it now</p>`
+        document.getElementById('notification').innerHTML=`<p> ${data} have posted new sotry check it now</p>`
+        console.log(data)
+    })
+
+    </script>
+</html>
