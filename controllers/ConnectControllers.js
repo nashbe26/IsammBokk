@@ -40,7 +40,7 @@ const CheckController = async (req,res)=>{
         const user = await User.login(req.body.email,req.body.passowrd);
         const jwtToken = createToken(user._id)
         res.cookie('token',jwtToken,{httpOnly:true,maxAge:77777});
-        res.send('succes' + user);
+        res.json({user,jwtToken});
         return user;
     }catch(err){
         console.log(err)
