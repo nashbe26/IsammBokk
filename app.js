@@ -11,6 +11,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http,{cors: {
     origin: '*',
 }});
+let messages=[];
 let users =[];
 let onlineUser = [];
 const userServices = require('./services/userServices')
@@ -37,38 +38,48 @@ app.use('/',addPost)
 app.use('/',userRouter)
 
 io.on('connection', function (socket) {
+ 
+
       const jwtToken =  socket.handshake.headers.authorization
-      
       if(jwtToken){
         console.log('************ connect from room ************')
         const tokenArray = socket.handshake.headers.authorization.split(" ") 
         if(tokenArray[1] !='null'){
           let decoded = jwt.verify(tokenArray[1], 'Hey Mr Client')
-          console.log("sdsqdsqdsqdsqd",decoded.id)
-          socket.join(decoded)
-          users.push(decoded.id)
-          console.log('this is scoket roomsssss',socket.rooms)
-       
+          socket.join(decoded.id)
+          if(!users.includes(decoded.id)){
+            users.push(decoded.id)
+          }
+          console.log(users)
           const oneUser = userServices.getOneUser(decoded.id).then((res)=>{
             console.log(res)
             onlineUser = res;
           }).catch(err =>{
             console.log(err)
           })
+          socket.on('newDisscu',(message)=>{
+
+            
+            if(messages[decoded.id] == null)
+              messages[decoded.id] = [];
+              
+              messages[decoded.id].push(message)
+         
+            console.log(messages)
+          })
         }else{
           socket.disconnect()
           console.log('from connect this is disconnected scoket rooms',socket.rooms)
         }
       }
+      
+      socket.to('605d1cd1bd95f31ad8005d22').emit('receiveMessage',{messages})
       socket.on('disconnect',()=>{
         console.log('************ disconnect from room ************')
         console.log('disconnected')
         console.log('this is disconnected scoket rooms',socket.rooms)
-       socket.broadcast.emit('userOnline',{users})
       })
-      socket.broadcast.emit('userOnline',{users})
-      console.log('this is osqdsqnline rooms',socket.rooms)
-     
+      io.emit('userOnline',{users})     
       socket.on( 'new_notification', function( data ) {
       console.log(data.title,data.message);
       io.sockets.emit( 'show_notification', { 
@@ -76,6 +87,7 @@ io.on('connection', function (socket) {
         message: data.message, 
         icon: data.icon, 
       });
+    
       });
   });
 io.of("/").adapter.on("delete-room", (room) => {
