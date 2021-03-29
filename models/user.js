@@ -7,7 +7,7 @@ const {isEmail,isStrongPassword} = require ('validator');
 const NewUser = new Schema({
     email:{
         type:String,
-        unique:true,
+        unique:[true,'this email already exist'],
         required:[true,'You must write your email'],
         validate:[isEmail,'Please enter a valid email']
     },

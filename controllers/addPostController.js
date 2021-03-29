@@ -9,7 +9,8 @@ const jwt  = require ('jsonwebtoken');
 
 const addPost =  async (req,res)=>{
     let io = req.app.get('socketio');
-    let userId = "6047773de6ea363db8d44a51" 
+    console.log(req.cookies['token'])
+    let userId = req.cookies['token'] && req.cookies['token']
     const posts = {
         title:req.body.title,
         content:req.body.content,

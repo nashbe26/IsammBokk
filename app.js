@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 let bodyParser = require('body-parser')
 const addPost = require('./routes/addPost')
+const userRouter = require('./routes/userRoutes')
 const jwt =require('jsonwebtoken')
 app = express();
 const cors =require('cors')
@@ -10,12 +11,11 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http,{cors: {
     origin: '*',
 }});
+let users =[];
+let onlineUser = [];
+const userServices = require('./services/userServices')
 
-
-
-const ConnectRoutes = require('./routes/ConnectRoutes')
-
-
+const ConnectRoutes = require('./routes/ConnectRoutes');
 
 DbUrl="mongodb+srv://nashbe:1234@cluster0.ixjnz.mongodb.net/users?retryWrites=true&w=majority";
 
@@ -23,7 +23,6 @@ mongoose.connect(DbUrl,{useNewUrlParser: true,useUnifiedTopology: true,useCreate
 .then((res)=>{
     http.listen(3000)
 })
-
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -35,28 +34,58 @@ app.get('/',(req,res)=>{
 })
 app.use('/',ConnectRoutes)
 app.use('/',addPost)
+app.use('/',userRouter)
 
 io.on('connection', function (socket) {
-      const jwtToken = socket.handshake.headers.authorization
-      if(jwtToken){
-        console.log(jwtToken)
-        const tokenArray = jwtToken.split(" ")
-        var decoded = jwt.verify(tokenArray[1], 'Hey Mr Client');
-        socket.join(decoded.id);
-      }
+      const jwtToken =  socket.handshake.headers.authorization
       
-    
-    socket.on( 'new_notification', function( data ) {
+      if(jwtToken){
+        console.log('************ connect from room ************')
+        const tokenArray = socket.handshake.headers.authorization.split(" ") 
+        if(tokenArray[1] !='null'){
+          let decoded = jwt.verify(tokenArray[1], 'Hey Mr Client')
+          console.log("sdsqdsqdsqdsqd",decoded.id)
+          socket.join(decoded)
+          users.push(decoded.id)
+          console.log('this is scoket roomsssss',socket.rooms)
+       
+          const oneUser = userServices.getOneUser(decoded.id).then((res)=>{
+            console.log(res)
+            onlineUser = res;
+          }).catch(err =>{
+            console.log(err)
+          })
+        }else{
+          socket.disconnect()
+          console.log('from connect this is disconnected scoket rooms',socket.rooms)
+        }
+      }
+      socket.on('disconnect',()=>{
+        console.log('************ disconnect from room ************')
+        console.log('disconnected')
+        console.log('this is disconnected scoket rooms',socket.rooms)
+       socket.broadcast.emit('userOnline',{users})
+      })
+      socket.broadcast.emit('userOnline',{users})
+      console.log('this is osqdsqnline rooms',socket.rooms)
+     
+      socket.on( 'new_notification', function( data ) {
       console.log(data.title,data.message);
       io.sockets.emit( 'show_notification', { 
         title: data.title, 
         message: data.message, 
         icon: data.icon, 
       });
-      socket.on('disconnect',function(){
-        jwtToken=""
-        console.log('you are disconnected')
-        console.log(socket.handshake.headers.authorization)
-      })
-    });
+      });
   });
+io.of("/").adapter.on("delete-room", (room) => {
+  console.log('************ disconnect ************')
+   console.log(`room ${room} was deleted`);
+   console.log(room)
+   console.log(users)
+   users = users.filter(x=>(
+    x !=room
+ ))
+   console.log(  'nashbe fesed', users)
+    
+   });

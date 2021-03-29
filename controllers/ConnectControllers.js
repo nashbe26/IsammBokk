@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/user');
 const createToken = (id)=>{
-    return jwt.sign({id},'Hey Mr Client',{expiresIn:6000})
+    return jwt.sign({id},'Hey Mr Client',{expiresIn:"24h"})
 }
 const ConnectController = async (req,res)=>{
     const handelEorror =()=>{
@@ -39,7 +39,7 @@ const CheckController = async (req,res)=>{
 
         const user = await User.login(req.body.email,req.body.passowrd);
         const jwtToken = createToken(user._id)
-        res.cookie('token',jwtToken,{httpOnly:true,maxAge:77777});
+        res.cookie('x-access-token',jwtToken,{httpOnly:true,maxAge:77777});
         res.json({user,jwtToken});
         return user;
     }catch(err){
