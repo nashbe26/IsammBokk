@@ -16,8 +16,12 @@ const NewUser = new Schema({
         required:[true,'You must write your password'],
      
     },
-    posts:[{type:mongoose.Schema.Types.ObjectId,ref:'posts'}]
-
+    posts:[{type:mongoose.Schema.Types.ObjectId,
+            ref:'posts'}],
+    conversation: [{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'conversation'
+    }],
 })
 
 NewUser.pre('save',async function (req,res,next){
