@@ -81,7 +81,11 @@ io.on('connection', function (socket) {
         console.log('disconnected')
         console.log('this is disconnected scoket rooms',socket.rooms)
       })
-      io.emit('userOnline',{users,onlineUser})     
+      io.emit('userOnline',{users})   
+      socket.emit('currentOnlineUser',{onlineUser})  
+      socket.emit('ConnectionChanges',data =>{
+        console.log(data)
+      })     
       socket.on( 'new_notification', function( data ) {
       console.log(data.title,data.message);
       io.sockets.emit( 'show_notification', { 

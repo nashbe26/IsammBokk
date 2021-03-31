@@ -1,6 +1,7 @@
 const conversationServices = require('../services/conversationServices');
 
 const newConversation = (req,res)=>{ 
+    console.log(req.body)
     const newConv = req.body
     const user =conversationServices.createConversation(newConv).then(
         results=>{
