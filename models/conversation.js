@@ -9,6 +9,14 @@ const newConversation = new Schema({
     idReceiver:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'users'
+    },
+    message:{
+        content:{
+            type:String
+        },
+        id:{
+            type:mongoose.Schema.Types.ObjectId
+        }
     }
 })
 

@@ -19,6 +19,7 @@ const userServices = require('./services/userServices')
 const ConnectRoutes = require('./routes/ConnectRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
 
+//DbUrl="mongodb://localhost:27017";
 DbUrl="mongodb+srv://nashbe:1234@cluster0.ixjnz.mongodb.net/users?retryWrites=true&w=majority";
 
 mongoose.connect(DbUrl,{useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true})
