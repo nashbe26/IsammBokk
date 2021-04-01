@@ -11,12 +11,11 @@ const newConversation = new Schema({
         ref:'users'
     },
     message:{
-        content:{
-            type:String
-        },
+        content:{type:String},
         id:{
             type:mongoose.Schema.Types.ObjectId
         }
+        
     }
 })
 

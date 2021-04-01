@@ -8,23 +8,19 @@ const deleteConversation = async (conversationID)=>{
     return await  conversation.findOneAndDelete(conversationID)
 }
 const getAllConversation = async ()=>{
-     await conversation.find(conversationID)
+     await conversation.find()
 }
 const getOneConversation = async (conversationID)=>{
     return await conversation.findById(conversationID)
 }
-const updateConversation = async (conversations)=>{
-     getOneConversation(conversationID).then(
-         results =>{
-             results.message.push(conversations.message)
-         }).catch(err =>{
-             console.log(err)
-         })
+async function sendMessage(data,message){
+        console.log(message);
+        data.message.content =message
 }
 module.exports = {
     createConversation,
     deleteConversation,
     getAllConversation,
     getOneConversation,
-    updateConversation
+    sendMessage
 };

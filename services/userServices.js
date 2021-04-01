@@ -11,13 +11,10 @@ async function getOneUser(userId){
 async function deleteUser(userId){
     const deleteUser = await  User.findOneAndDelete(userId)
 }
-async function updateUser(users){
-    const upUser = await User.save(users)
-    return users
-}
+
 module.exports={
     getAllUser,
     getOneUser,
     deleteUser,
-    updateUser
+    
 }

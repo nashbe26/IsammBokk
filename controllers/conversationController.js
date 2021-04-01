@@ -27,10 +27,38 @@ const getConversation = (req,res)=>{
             console.log(err)
         })
 }
+const getOneConversation = (req,res)=>{
+    const idConv = req.body
+    conversationServices.getAllConversation(idConv).then(
+        results=>{
+            res.json(results)
+        }).catch(err=>{
+            console.log(err)
+        })
+}
+const sendMessage = (req,res)=>{
+    const idConv=req.body;
+    console.log("dsqdsqdsqd",idConv);
+    conversationServices.getOneConversation("60651c9beacb9b357c2ba657").then(
+        data =>{
+            console.log(data)
+            conversationServices.sendMessage(data,idConv.message.content).then(
+                results =>{
+                    res.json(results)
+                }).catch(err =>{
+                    console.log(err);
+                })
+        }).catch(err =>{
+            console.log(err)
+        })
+ 
+}
 module.exports = {
     newConversation,
     deleteConversation,
-    getConversation
+    getConversation,
+    getOneConversation,
+    sendMessage
 }
 
 
