@@ -14,7 +14,8 @@ const io = require('socket.io')(http,{cors: {
 let messages=[];
 let users =[];
 let onlineUser = [];
-const userServices = require('./services/userServices')
+const conversationServices = require('./services/conversationServices');
+const userServices = require('./services/userServices');
 
 const ConnectRoutes = require('./routes/ConnectRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
@@ -41,8 +42,6 @@ app.use('/',conversationRoutes)
 app.use('/',userRouter)
 
 io.on('connection', function (socket) {
- 
-
       const jwtToken =  socket.handshake.headers.authorization
       if(jwtToken){
         console.log('************ connect from room ************')
@@ -67,7 +66,12 @@ io.on('connection', function (socket) {
               messages[decoded.id] = [];
               
               messages[decoded.id].push(message)
-         
+              console.log(message);
+              conversationServices.sendMessage(message).then(
+                results=>{
+                  console.log(results)
+                }
+              )
             console.log(messages)
           })
         }else{

@@ -20,7 +20,7 @@ const NewUser = new Schema({
             ref:'posts'}],
     conversation: [{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'conversation'
+        ref:'conversations'
     }],
 })
 

@@ -29,6 +29,7 @@ const ConnectController = async (req,res)=>{
     const create = await NewUser.save({email,passowrd})
     .then(()=>{
         res.send('hello world')
+        
     })
     .catch(
         err => console.log(err)
