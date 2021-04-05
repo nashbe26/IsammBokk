@@ -10,7 +10,11 @@ const newConversation = new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'users'
     },
-    message:[]
+    message:[{
+        content:{
+            type:String
+        }
+    }]
 })
 
 const conversation = mongoose.model('conversation',newConversation)

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/user');
 const createToken = (id)=>{
-    return jwt.sign({id},'Hey Mr Client',{expiresIn:"100h"})
+    return jwt.sign({id},'Hey Mr Client',{expiresIn:"10000h"})
 }
 const ConnectController = async (req,res)=>{
     const handelEorror =()=>{

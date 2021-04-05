@@ -23,7 +23,7 @@ const conversationRoutes = require('./routes/conversationRoutes');
 //DbUrl="mongodb://localhost:27017";
 DbUrl="mongodb+srv://nashbe:1234@cluster0.ixjnz.mongodb.net/users?retryWrites=true&w=majority";
 
-mongoose.connect(DbUrl,{useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true})
+mongoose.connect(DbUrl,{useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true, useFindAndModify: false,})
 .then((res)=>{
     http.listen(3000)
 })
@@ -54,36 +54,34 @@ io.on('connection', function (socket) {
           }
           console.log(users)
           const oneUser = userServices.getOneUser(decoded.id).then((res)=>{
-            console.log(res)
             onlineUser = res;
           }).catch(err =>{
             console.log(err)
           })
-          socket.on('newDisscu',(message)=>{
+          // socket.on('newDisscu',(message)=>{
 
             
-            if(messages[decoded.id] == null)
-              messages[decoded.id] = [];
+          //   if(messages[decoded.id] == null)
+          //     messages[decoded.id] = [];
               
-              messages[decoded.id].push(message)
-              console.log(message);
-              conversationServices.sendMessage(message).then(
-                results=>{
-                  console.log(results)
-                }
-              )
-            console.log(messages)
-          })
+          //     messages[decoded.id].push(message)
+          //     console.log(message);
+          //     conversationServices.sendMessage(message).then(
+          //       results=>{
+          //         console.log(results)
+          //       }
+          //     )
+          //   console.log(messages)
+          // })
         }else{
           socket.disconnect()
-          console.log('from connect this is disconnected scoket rooms',socket.rooms)
+          
         }
       }
       
       socket.to('605d1cd1bd95f31ad8005d22').emit('receiveMessage',{messages})
       socket.on('disconnect',()=>{
-        console.log('************ disconnect from room ************')
-        console.log('disconnected')
+  
         console.log('this is disconnected scoket rooms',socket.rooms)
       })
       io.emit('userOnline',{users})   

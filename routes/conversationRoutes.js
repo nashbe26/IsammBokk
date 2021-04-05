@@ -4,8 +4,8 @@ const router =express.Router();
 const converastionController = require('../controllers/conversationController');
 
 router.post("/createConversation",converastionController.newConversation);
-router.put("/sendonversation",converastionController.sendMessage);
-router.get("/getConversation/:id",converastionController.getConversation);
+router.post("/sendConversation",converastionController.sendMessage);
+router.get("/getOneConversation/:id",converastionController.getOneConversation);
 router.get("/getConversation",converastionController.getConversation);
 router.post("/deleteConversation/:id",converastionController.deleteConversation)
 

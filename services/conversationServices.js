@@ -8,7 +8,10 @@ const deleteConversation = async (conversationID)=>{
     return await  conversation.findOneAndDelete(conversationID)
 }
 const getAllConversation = async ()=>{
-     await conversation.find()
+     return await conversation.find()
+}
+const findOneConversation = async(conversations)=>{
+    return await conversation.find({$and:[{idOwner:conversations.idOwner},{idReceiver:conversations.idReceiver}]})
 }
 const getOneConversation = async (conversationID)=>{
     return await conversation.findById(conversationID)
@@ -16,13 +19,15 @@ const getOneConversation = async (conversationID)=>{
 const getConversationByUserId = async (conversationID)=>{
     return await conversation.find(conversationID)
 }
-async function sendMessage(data,message){
-        console.log("sqdsqdqsd",message);
-        console.log("data is here" ,data.message.message )
-        data.message.message.push(message)
-        return await conversation.findByIdAndUpdate("60651c9beacb9b357c2ba657",data.message,{
-            new:true,setDefaultsOnInsert:true
-        })
+async function sendMessage(getOne,received){
+    getOne.message.push(received.message)
+    return await conversation.findByIdAndUpdate("6069b312dfb9be2bb4e87b4d",getOne,{
+        new:true,
+    }).then(res =>{
+        console.log ("dsqdsqd",res)
+    }).catch (err =>{
+        console.log(err);
+    })
 }
 module.exports = {
     createConversation,
@@ -30,5 +35,6 @@ module.exports = {
     getAllConversation,
     getOneConversation,
     sendMessage,
-    getConversationByUserId
+    getConversationByUserId,
+    findOneConversation
 };
