@@ -2,14 +2,10 @@ const mongoose = require('mongoose');
 const {Schema} = mongoose;
 
 const newConversation = new Schema({
-    idOwner:{
+    users:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'users'
-    },
-    idReceiver:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'users'
-    },
+    }],
     message:[{
         content:{
             type:String
