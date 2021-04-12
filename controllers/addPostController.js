@@ -45,8 +45,6 @@ const showPostById = async (req,res)=>{
     const {id} = req.params
     console.log(id)
     const retreivePostById = await Posts.findById(id).populate({ path:'user' , model: Users })
-
-    
     res.send(retreivePostById);
  
 }

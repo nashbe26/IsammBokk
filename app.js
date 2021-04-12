@@ -31,7 +31,6 @@ mongoose.connect(DbUrl,{useNewUrlParser: true,useUnifiedTopology: true,useCreate
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.set('socketio', io);
-
 app.set('view engine','ejs');
 app.get('/',(req,res)=>{
     res.render('index');
@@ -42,9 +41,8 @@ app.use('/',conversationRoutes)
 app.use('/',userRouter)
 
 io.on('connection', function (socket) {
-      const jwtToken =  socket.handshake.headers.authorization
-      if(jwtToken){
-        console.log('************ connect from room ************')
+  const jwtToken =  socket.handshake.headers.authorization
+    if(jwtToken){
         const tokenArray = socket.handshake.headers.authorization.split(" ") 
         if(tokenArray[1] !='null'){
           let decoded = jwt.verify(tokenArray[1], 'Hey Mr Client')
@@ -58,37 +56,27 @@ io.on('connection', function (socket) {
           }).catch(err =>{
             console.log(err)
           })
-          // socket.on('newDisscu',(message)=>{
-
-            
-          //   if(messages[decoded.id] == null)
-          //     messages[decoded.id] = [];
-              
-          //     messages[decoded.id].push(message)
-          //     console.log(message);
-          //     conversationServices.sendMessage(message).then(
-          //       results=>{
-          //         console.log(results)
-          //       }
-          //     )
-          //   console.log(messages)
-          // })
-        }else{
-          socket.disconnect()
-          
+        console.log(messages);
+        socket.on('newDisscu',({message})=>{
+          conversationServices.getOneConversation(message._id).then(
+            results =>{
+              console.log(results);
+              conversationServices.sendMessage(results,message).then(
+                ()=>{
+                  messages.push(message.message.content);
+                  io.emit('receiveMessage',{messages});
+                })
+            })
+           
+    })}else{
+          socket.disconnect() 
         }
       }
-      
-      socket.to('605d1cd1bd95f31ad8005d22').emit('receiveMessage',{messages})
       socket.on('disconnect',()=>{
-  
         console.log('this is disconnected scoket rooms',socket.rooms)
       })
       io.emit('userOnline',{users})   
-      socket.emit('currentOnlineUser',{onlineUser})  
-      socket.emit('ConnectionChanges',data =>{
-        console.log(data)
-      })     
+      socket.broadcast.emit('currentOnlineUser',{onlineUser})  
       socket.on( 'new_notification', function( data ) {
       console.log(data.title,data.message);
       io.sockets.emit( 'show_notification', { 
@@ -96,17 +84,14 @@ io.on('connection', function (socket) {
         message: data.message, 
         icon: data.icon, 
       });
-    
       });
   });
 io.of("/").adapter.on("delete-room", (room) => {
   console.log('************ disconnect ************')
-   console.log(`room ${room} was deleted`);
-   console.log(room)
-   console.log(users)
-   users = users.filter(x=>(
+  users = users.filter(x=>(
     x !=room
  ))
+ messages = [];
    console.log(  'nashbe fesed', users)
     
    });
