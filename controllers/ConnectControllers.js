@@ -24,17 +24,15 @@ const ConnectController = async (req,res)=>{
             })
         }
     }
-    const {email,passowrd} = req.body;
-    const NewUser = new User ({email,passowrd})
-    const create = await NewUser.save({email,passowrd})
-    .then(()=>{
-        res.send('hello world')
-        
+    let user = new User(req.body)
+    const create = await user.save(req.body)
+    .then((results)=>{
+        res.send(results)
+        console.log("dsqdsq",results);   
     })
     .catch(
         err => console.log(err)
-    )
-}
+    )}
 const CheckController = async (req,res)=>{
     try{
 

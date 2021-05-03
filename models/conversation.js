@@ -4,11 +4,15 @@ const {Schema} = mongoose;
 const newConversation = new Schema({
     users:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'users'
+        ref:'User'
     }],
     message:[{
         content:{
             type:String
+        },
+        id:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User'
         }
     }]
 })

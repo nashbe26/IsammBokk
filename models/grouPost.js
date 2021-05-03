@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const postSchema = new Schema({
+const postGroupSchema = new Schema({
+    groupId:{
+        type:mongoose.Schema.Types.ObjectId,ref:'group'
+    },
     content:{
         type:String,
         required:true
@@ -15,5 +18,5 @@ const postSchema = new Schema({
     comments:[{type:mongoose.Schema.Types.ObjectId,ref:'comments'}]
     
 })
-const Posts = mongoose.model('Posts',postSchema);
+const Posts = mongoose.model('PostsGroup',postGroupSchema);
 module.exports=Posts

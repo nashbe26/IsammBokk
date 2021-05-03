@@ -1,49 +1,26 @@
 const Posts = require('../models/post');
 const Users = require('../models/user');
-const Notfi = require('../models/notification');
-const express = require('express');
+const Group = require('../models/group');
 
 const socket = require('socket.io');
 
 const jwt  = require ('jsonwebtoken');
 
-app = express();
-
-
-
 const addPost =  async (req,res)=>{
+    console.log(req.body);
     const findUser = await Users.findById(req.body.user)
+    const findGroup = await Group.findById(req.body.groupId)
     const postUser = await Posts.create(req.body)
     .then(async (resu)=>{
-        let notifications = {
-            user : findUser._id,
-            notification:{
-              context:"add  a new post"
-            }
-          }
-        const notification = await Notfi.create(notifications)
-        await Users.find({_id : {$nin:resu._id}}).then(
-        async (allUser) =>{
-            allUser.map(async x=>{
-                await Users.findOneAndUpdate({_id:x._id},{"$push": {"notifications":notification._id}},{new: true})
-            })
-        }
-    )
-        io.on('connection', function (socket) {
-            socket.broadcast.emit("notificationDetected",notification);
-    })              
-    await Users.findOneAndUpdate({_id:findUser._id},{"$push": {"posts":resu._id}},{new: true}).then(
-        results =>{
-            console.log("results",results);
-            }).catch(err =>{
-            console.log(err);
-        })
+    await Users.findOneAndUpdate({_id:findUser._id},{"$push": {"posts":resu._id} },{new: true})
+        
+    await  Group.findOneAndUpdate({_id:findGroup._id},{"$push": {"posts":resu._id} },{new: true})    
         res.json(resu)
-    })
+})
     .catch((err)=>{
         console.log(err)
     })
-
+    
    
 }
 const deletePost = async (req,res) =>{
@@ -59,9 +36,11 @@ const deletePost = async (req,res) =>{
 }
 
 const showPostById = async (req,res)=>{
-
+    const {id} = req.params
+    console.log(id)
      await Posts.findById(id).populate({ path:'user' , model: Users }).then(
         results=>{
+            console.log("dqsdsqd",results);
             res.json(results)
         })
 }
