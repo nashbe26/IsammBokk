@@ -1,24 +1,45 @@
 const comments = require("../models/comments");
 const Posts = require ("../models/post")
 const Users = require ("../models/user")
+const Notfi = require('../models/notification');
 
 
 const addComments = async(req,res)=>{
-    const comment = req.body;
-    await comments.create(comment).then(async (results)=>{
-        await Users.findOneAndUpdate({_id:comment.userId}, {"$push": {"comments": results._id}},{new: true})
+  
+    
+    const findUser = await Users.findById(req.body.userId)
+    console.log(findUser);
+    await comments.create(req.body).then(async (results)=>{
+        let notifications = {
+            idUser : findUser._id,
+            notification:{
+              context:"add a new comment"
+            }
+        }
+        const notification = await Notfi.create(notifications).then(async notif =>{
+            await Notfi.findById(notif._id).then( (newNotif) =>{
+                console.log(newNotif);
+                console.log(io);
+                io.on('connection', function (socket) {
+                    socket.broadcast.emit("notificationDetected",newNotif);
+                }) 
+            })
+            await Users.findOneAndUpdate({_id:req.body.userId},{"$push":{"comments": results._id , "notifications":notif._id}},{new: true}).then(datas =>{
+                console.log(datas);
+            })  
+
+        })
         res.status(200).json(results)
-    }).catch(err =>{
-        res.status(404)
-        console.log(err)
-    })
+    })   
+  
+
 } 
 
 const deleteComment = async (req,res) =>{
     const commentId = req.params.id;
     console.log(commentId);
     await comments.findByIdAndDelete(commentId).then(results=>{
-        console.log("results",results);
+       
         res.status(200).json(results)
     }).catch(err =>{
         res.status(404)

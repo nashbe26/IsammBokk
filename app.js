@@ -1,16 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
-let bodyParser = require('body-parser')
-const addPost = require('./routes/addPost')
-const addPostGroup = require('./routes/postsRoutes')
-const userRouter = require('./routes/userRoutes')
-let uuid;
-const jwt =require('jsonwebtoken')
+let bodyParser = require('body-parser');
+const nodemailer = require("nodemailer");
+const addPost = require('./routes/addPost');
+const addPostGroup = require('./routes/postsRoutes');
+const userRouter = require('./routes/userRoutes');
+const jwt =require('jsonwebtoken');
+var path = require('path')
+
+
 app = express();
-const cors =require('cors')
-app.use(cors())
+const cors =require('cors');
+app.use(cors());
+var multer  = require('multer')
+
 const http = require('http').Server(app);
-global.io = require('socket.io')(http,{cors: {
+io = require('socket.io')(http,{cors: {
     origin: '*',
 }});
 let broadcaster;
@@ -25,9 +30,10 @@ const linkRoutes = require('./routes/linkRoutes');
 const groupRoutes = require('./routes/groupRouter');
 const conversationRoutes = require('./routes/conversationRoutes');
 const commentRoutes = require('./routes/commentsRoutes');
-const notification = require('./models/notification');
-const { lock } = require('./routes/notificaitonsRoute');
+const upvoteRoutes = require('./routes/upvotesRoutes');
+const userFeedRoutes = require('./routes/userFeed');
 
+ let sockets = [];
 
 DbUrl="mongodb+srv://nashbe:1234@cluster0.ixjnz.mongodb.net/users?retryWrites=true&w=majority";
 
@@ -40,21 +46,109 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.set('socketio', io);
 app.set('view engine','ejs');
-app.get('/',(req,res)=>{
-    res.render('index');
-})
-app.use('/',ConnectRoutes)
-app.use('/',addPost)
-app.use('/',addPost)
-app.use('/',conversationRoutes)
-app.use('/',userRouter)
-app.use('/',linkRoutes)
-app.use('/',addPostGroup)
-app.use('/',commentRoutes)
-app.use('/',groupRoutes)
-app.use('/',notificationController)
-io.on('connection', function (socket) {
+app.use(express.static(path.join(__dirname, 'public')));
 
+
+
+
+
+ function verifyToken(req,res,next){
+//   console.log("ssssssss",req.headers.authorization);
+//   if (!req.headers.authorization){
+//     return res.status(401).send('unauthorization request');
+//   }
+//   let token = req.headers.authorization.split(" ");
+ 
+//   if(token[1]== 'null'){
+//     return res.status(401).send('unauthorization request');
+//   }
+
+//   try{
+//     let payload = jwt.verify(token[1], 'Hey Mr Client',function(err, decoded) {
+//   if (err) {
+    
+//     console.log(err);
+//       err = {
+//         name: 'TokenExpiredError',
+//         message: 'jwt expired',
+//         expiredAt: 1408621000
+//       }
+//       return res.status(401).send('unauthorization request');
+//     }
+    
+//   })
+//     req.userId=payload.subject
+//   }catch(err){
+//     return res.status(401).send('unauthorization request');
+//   }
+next()
+  
+ }
+ 
+const storage = multer.diskStorage({
+  destination: (req, file, callBack) => {
+      callBack(null, 'public/uploads')
+  },
+  filename: (req, file, callBack) => {
+      callBack(null, `FunOfHeuristic_${file.originalname}`)
+  }
+})
+const upload = multer({ storage: storage })
+
+app.post('/file', upload.single('file'), (req, res, next) => {
+  const file = req.file;
+  if (!file) {
+    const error = new Error('No File')
+    error.httpStatusCode = 400
+    return next(error)
+  }
+    res.json(file);
+})
+
+app.use('/',ConnectRoutes);
+app.use('/',addPost);
+app.use('/',addPost);
+app.use('/',conversationRoutes);
+app.use('/',userRouter);
+app.use('/',linkRoutes);
+app.use('/',addPostGroup);
+app.use('/',commentRoutes);
+app.use('/',groupRoutes);
+app.use('/',notificationController);
+app.use('/',upvoteRoutes);
+app.use('/',userFeedRoutes);
+app.post("/sendEmail", (req, res) => {
+  console.log("request came");
+  let user = req.body;
+  sendMail(user, info => {
+    console.log(`The mail has beed send 😃 and the id is ${info.messageId}`);
+    res.send(info);
+  });
+});
+
+async function sendMail(user, callback) {
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+  
+  });
+
+  let mailOptions = {
+    from: '"Fun Of Heuristic"<example.gimail.com>', // sender address
+    to: user.email, // list of receivers
+    subject: "Wellcome to Fun Of Heuristic 👻", // Subject line
+    html: `<h1>Hi ${user.name}</h1><br>
+    <h4>Thanks for joining us</h4>`
+  };
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail(mailOptions);
+
+  callback(info);
+}
+io.on('connection', function (socket) {
   const jwtToken =  socket.handshake.headers.authorization
   if(jwtToken){
   
@@ -65,7 +159,7 @@ io.on('connection', function (socket) {
         if(!users.includes(decoded.id)){
             users.push(decoded.id)
           }
-
+          sockets[decoded.id] = socket.id
           const oneUser = userServices.getOneUser(decoded.id).then((res)=>{
             onlineUser = res;
           }).catch(err =>{
@@ -101,7 +195,7 @@ io.on('connection', function (socket) {
   if(conversation._id){
     socket.join(conversation._id);
     let notification = {
-      user : conversation.message.id,
+      idUser : conversation.message.id,
       notification:{
         context:"sent a message"
       }
@@ -110,7 +204,7 @@ io.on('connection', function (socket) {
       console.log(checkConv,'checkConvcheckConvcheckConvcheckConv');
       notificationServices.createNotification(notification).then(
         ()=>{
-     
+          socket.broadcast.emit("Detected");
           socket.broadcast.emit("notificationDetected",notification);
         }).catch(err =>
           console.log(err)
@@ -122,12 +216,11 @@ io.on('connection', function (socket) {
     conversationServices.createConversation(conversation).then(
         resultsConv=>{
          let notification = {
-           user : conversation.message.id,
+           idUser : conversation.message.id,
            notification:{
              context:"sent a message"
            }
          }
-         console.log(resultsConv);
           conversationServices.getOneConversation(resultsConv._id).then(
                 results=>{
                
@@ -153,6 +246,7 @@ io.on('connection', function (socket) {
    
 }else{
           socket.disconnect() 
+          users = users.filter(u => u !== user);
         }
       }
       
@@ -170,12 +264,3 @@ io.on('connection', function (socket) {
       });
       });
   });
-io.of("/").adapter.on("delete-room", (room) => {
-  console.log('************ disconnect ************')
-  users = users.filter(x=>(
-    x !=room
- ))
- messages = [];
-   console.log(  'nashbe fesed', users)
-    
-   });

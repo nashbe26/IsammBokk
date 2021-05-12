@@ -14,6 +14,9 @@ const postGroupSchema = new Schema({
     date:{
         type:Date
     },
+    upvotes:[{
+        type:mongoose.Schema.Types.ObjectId,ref:'upvotes'
+    }],
     user:{type:mongoose.Schema.Types.ObjectId,ref:'User'},
     comments:[{type:mongoose.Schema.Types.ObjectId,ref:'comments'}]
     

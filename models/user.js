@@ -3,25 +3,19 @@ const {Schema} = mongoose;
 const bcrypt = require('bcrypt');
 const {isEmail,isStrongPassword} = require ('validator');
 
-
 const NewUser = new Schema({
     lastName:{
-        type:String,
-        require:[true,'You must chose your lastName']
+        type:String
     },
     firstName:{
-        type:String,
-        require:[true,'You must chose your firstName']
+        type:String
     },
     email:{
         type:String,
-        unique:[true,'this email already exist'],
-        required:[true,'You must write your email'],
-        validate:[isEmail,'Please enter a valid email']
+        index: {unique: true, dropDups: true}
     },
     userType:{
         type:String,
-        require:[true,'You must chose your type']
     },
     accountStatus:{
         type:String
@@ -29,11 +23,19 @@ const NewUser = new Schema({
     registredDate:{
         type:Date
     },
-    passowrd:{
+    password:{
         type:String,
-        required:[true,'You must write your password'],
-     
     },
+    confirmPassword:{
+        type:String,
+    },
+    classRoom:{
+        type:String,
+    },
+    upvotes:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'upvotes'
+    }],
     notifications:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'notifications'
@@ -43,25 +45,40 @@ const NewUser = new Schema({
         ref:'Comments'
     }],
     posts:[{type:mongoose.Schema.Types.ObjectId,
-            ref:'Posts'}],
+            ref:'Posts'
+    }],
     conversation: [{
         type:mongoose.Schema.Types.ObjectId,
         ref:'conversation'
     }],
+    upvotes:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'upvotes'
+        
+    }],
+    userFeed:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Posts'
+    }],
+
 })
 
 NewUser.pre('save',async function (req,res,next){
  
     const slat = await bcrypt.genSalt(10);
-    this.passowrd = await bcrypt.hash(this.passowrd,slat);
+    this.password = await bcrypt.hash(this.password,slat);
    
     next();
 })
-NewUser.statics.login = async function(email,passowrd){
+// NewUser.path('email').validate(async(email)=>{
+//     const emailCount = await mongoose.models.email.countDocuments({email});
+//     return !emailCount;
+// },'Email already exists')
+NewUser.statics.login = async function(email,password){
     const AllUsers =await  User.findOne({email:email});
-    console.log(AllUsers)
-    if (AllUsers){
-        const AuthPassword = await bcrypt.compare(passowrd,AllUsers.passowrd)
+    console.log("dqsdsqd",AllUsers)
+    if (AllUsers !=null){
+        const AuthPassword = await bcrypt.compare(password,AllUsers.password)
         console.log(AuthPassword)
         if(AuthPassword){
             return(AllUsers);

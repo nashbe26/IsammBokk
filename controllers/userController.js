@@ -17,7 +17,19 @@ const getUser = async (req,res)=>{
         console.log(err)
     })
 }
+const getNameUser = async (req,res)=>{
+    id = req.params.name
+    if(id.length === 0)
+    res.status(200).json({failed:'no User'})   
+    await User.find({firstName:new RegExp(id, 'i') }).then((data)=>{
+        res.status(200).json(data)
+    }).catch(
+        err =>res.status(404).json(err))
+}
+
+
 module.exports={
     getAll,
-    getUser
+    getUser,getNameUser
+
 }

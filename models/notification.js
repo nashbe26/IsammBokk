@@ -2,17 +2,18 @@ const mongoose = require('mongoose');
 const {Schema} = mongoose;
 
 const newNotification = new Schema ({
-    user:{
+    idUser:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'users'
+        ref:'User'
     },
+ 
     notification:[{
         context:{
             type:String
         }
     }]
    
-})
+},{timestamps:true})
 const notification = mongoose.model('notifications',newNotification);
 
 module.exports = notification
