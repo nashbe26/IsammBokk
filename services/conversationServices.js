@@ -21,7 +21,7 @@ const findOneConversation = async(conversations)=>{
 
 const getOneConversation = async (conversationID)=>{
   
-    return await conversation.findById(conversationID)
+    return await conversation.findById(conversationID).populate('users')
 }
 const getConversationByUserId = async (conversationID)=>{
 

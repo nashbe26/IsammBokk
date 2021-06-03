@@ -60,6 +60,15 @@ const NewUser = new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'Posts'
     }],
+    homework:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Homework'
+    }],
+    listhomework:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Homework'
+    }],
+    
 
 })
 

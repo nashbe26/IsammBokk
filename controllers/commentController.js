@@ -24,9 +24,9 @@ const addComments = async(req,res)=>{
                     socket.broadcast.emit("notificationDetected",newNotif);
                 }) 
             })
-            await Users.findOneAndUpdate({_id:req.body.userId},{"$push":{"comments": results._id , "notifications":notif._id}},{new: true}).then(datas =>{
-                console.log(datas);
-            })  
+            await Users.findOneAndUpdate({_id:req.body.userId},{"$push":{"comments": results._id , "notifications":notif._id}},{new: true})
+            await Posts.findOneAndUpdate({_id:req.body.postId},{"$push":{"comments": results._id}},{new: true}).then(data =>{
+            })
 
         })
         res.status(200).json(results)

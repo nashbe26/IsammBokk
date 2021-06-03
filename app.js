@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const addPost = require('./routes/addPost');
 const addPostGroup = require('./routes/postsRoutes');
 const userRouter = require('./routes/userRoutes');
+const backofficeRouter = require('./routes/backofficeRoute');
 const jwt =require('jsonwebtoken');
 var path = require('path')
 
@@ -32,6 +33,9 @@ const conversationRoutes = require('./routes/conversationRoutes');
 const commentRoutes = require('./routes/commentsRoutes');
 const upvoteRoutes = require('./routes/upvotesRoutes');
 const userFeedRoutes = require('./routes/userFeed');
+const coursRouter = require('./routes/coursRouter');
+const homeworkRouter = require('./routes/homeworkRoutes');
+const homeworkResponseRouter = require('./routes/responseHomework');
 
  let sockets = [];
 
@@ -117,6 +121,11 @@ app.use('/',groupRoutes);
 app.use('/',notificationController);
 app.use('/',upvoteRoutes);
 app.use('/',userFeedRoutes);
+app.use('/',coursRouter);
+app.use('/',homeworkRouter);
+app.use('/',homeworkResponseRouter);
+app.use('/',backofficeRouter);
+
 app.post("/sendEmail", (req, res) => {
   console.log("request came");
   let user = req.body;
@@ -246,16 +255,17 @@ io.on('connection', function (socket) {
    
 }else{
           socket.disconnect() 
-          users = users.filter(u => u !== user);
+          
         }
       }
       
       socket.on('disconnect',()=>{
+        // users = users.filter(u => u !== user);
         console.log('this is disconnected scoket rooms',socket.rooms)
       })
       io.emit('userOnline',{users})   
       socket.broadcast.emit('currentOnlineUser',{onlineUser})  
-      socket.on( 'new_notification', function( data ) {
+      socket.on( 'new_notification', function(data){
       console.log(data.title,data.message);
       io.sockets.emit( 'show_notification', { 
         title: data.title, 
