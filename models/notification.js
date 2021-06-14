@@ -6,7 +6,10 @@ const newNotification = new Schema ({
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
     },
- 
+    idOwner:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    },
     notification:[{
         context:{
             type:String

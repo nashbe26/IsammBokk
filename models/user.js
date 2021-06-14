@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const {Schema} = mongoose;
 const bcrypt = require('bcrypt');
 const {isEmail,isStrongPassword} = require ('validator');
+const { verify } = require('jsonwebtoken');
 
 const NewUser = new Schema({
     lastName:{
@@ -32,6 +33,10 @@ const NewUser = new Schema({
     classRoom:{
         type:String,
     },
+    niveau:{
+        type:String,
+    },
+    
     upvotes:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'upvotes'
@@ -68,8 +73,13 @@ const NewUser = new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'Homework'
     }],
-    
-
+    groupId:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'group'
+    }],
+    verify:{
+        type:String,default:"pending"
+    }
 })
 
 NewUser.pre('save',async function (req,res,next){

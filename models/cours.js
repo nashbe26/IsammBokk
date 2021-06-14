@@ -14,6 +14,16 @@ const newCours = new Schema ({
     userId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
+    },
+    sessionStatus:{
+        type:String
+    },etat:{
+        type:String,
+        default:"pending"
+    },
+    lien:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'links'
     }
 },{timestamps:true})
 

@@ -11,6 +11,9 @@ const newGroup= new Schema({
     type:mongoose.Schema.Types.ObjectId,
     ref:'User'
    },
+   nomGroup:{
+       type:String
+   },
    posts:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Posts'
@@ -18,7 +21,7 @@ const newGroup= new Schema({
     createdDate:{
         type:Date
     }
-});
+},{timestamps:true});
 
 const Group = mongoose.model('group',newGroup)
 

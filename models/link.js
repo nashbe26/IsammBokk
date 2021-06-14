@@ -14,6 +14,10 @@ const newLink = new Schema({
     url:{
         type:String
     },
+    cours:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Cours'
+    }
 })
 
 const Link = mongoose.model('links',newLink);

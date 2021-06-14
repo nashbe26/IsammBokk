@@ -10,7 +10,6 @@ const addLink = (req,res)=>{
 }
 const showLink = (req,res)=>{
     body=req.params;
-    console.log("salem",req.params.id);
     linkServices.showLink(req.params.id).then(results =>{
         console.log(results);
         res.status(200).json(results)

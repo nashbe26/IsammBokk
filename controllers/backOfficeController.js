@@ -1,5 +1,8 @@
 const User = require('../models/user');
 const Cours = require('../models/cours');
+const Link = require('../models/link');
+
+const uid = require("uid")
 
 const  postUser = async (req,res)=>{
     await User.findAll().then(data=>{
@@ -20,18 +23,30 @@ const approveUser = async (req,res)=>{
     })
 }
 const approveCours = async (req,res)=>{
-    let id = req.body.params
+    let id = req.params.id
+    console.log("dqsdsqd",id);
     await Cours.findById(id).then(async cour =>{
-        await Cours.find({date:cour.date,hours:cour.date}).then(async data=>{
-            if(data.length >0){
+        console.log(cour);
+        const data = await Cours.find({date:cour.date})
+            console.log(data)
+              const data2 =  await Cours.find({hours:cour.hours})
+          
+
+         let udid = uid(25)
+              
+                if(data2.length != 1 && data.length != 1){
+
+                    await Cours.findByIdAndUpdate(cour._id,{"etat": "pending"},{new: true})
+                    res.json({exist : true})}
+            else{
+                await Cours.findByIdAndUpdate(cour._id,{"etat": "valid"},{new: true}).then(async check=>{
+              
+                   
+                })
                 res.status(200).json(data)
-            }else{
-                res.status(200).json({valid:'true'})
+                console.log("ahwla");
             }
-   
-        }).catch(err =>{
-            console.log(err);
-        })
+       
     })
 }
 

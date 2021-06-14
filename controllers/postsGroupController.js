@@ -10,12 +10,15 @@ const addPost =  async (req,res)=>{
     console.log(req.body);
     const findUser = await Users.findById(req.body.user)
     const findGroup = await Group.findById(req.body.groupId)
-    const postUser = await Posts.create(req.body)
+    const re = await Posts.create(req.body)
     .then(async (resu)=>{
     await Users.findOneAndUpdate({_id:findUser._id},{"$push": {"posts":resu._id} },{new: true})
         
     await  Group.findOneAndUpdate({_id:findGroup._id},{"$push": {"posts":resu._id} },{new: true})    
-        res.json(resu)
+    await Posts.findById(resu._id).populate('user').then(es=>{
+        res.json(es)
+
+    })
 })
     .catch((err)=>{
         console.log(err)
@@ -38,7 +41,7 @@ const deletePost = async (req,res) =>{
 const showPostById = async (req,res)=>{
     const {id} = req.params
     console.log(id)
-     await Posts.findById(id).populate({ path:'user' , model: Users }).then(
+     await Posts.findById(id).populate({ path:'user' , model: Users }).sort({date:-1}).then(
         results=>{
             console.log("dqsdsqd",results);
             res.json(results)

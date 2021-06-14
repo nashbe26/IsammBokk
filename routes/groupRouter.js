@@ -7,5 +7,6 @@ router.post('/addgroup',groupController.createGroup)
 router.get('/showGroup/:id',groupController.showOneGroup)
 router.get('/showGroupById/:id',groupController.showOneGroupId)
 router.delete('/deleteGroup/:id',groupController.groupComment)
+router.post('/addStudent',groupController.groupAdd)
 
 module.exports =router

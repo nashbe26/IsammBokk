@@ -9,6 +9,8 @@ const backofficeRouter = require('./routes/backofficeRoute');
 const jwt =require('jsonwebtoken');
 var path = require('path')
 
+const emmitter = require('./services/eventBus')
+
 
 app = express();
 const cors =require('cors');
@@ -38,6 +40,7 @@ const homeworkRouter = require('./routes/homeworkRoutes');
 const homeworkResponseRouter = require('./routes/responseHomework');
 
  let sockets = [];
+ let not = []
 
 DbUrl="mongodb+srv://nashbe:1234@cluster0.ixjnz.mongodb.net/users?retryWrites=true&w=majority";
 
@@ -108,7 +111,7 @@ app.post('/file', upload.single('file'), (req, res, next) => {
   }
     res.json(file);
 })
-
+console.log(emmitter._events);
 app.use('/',ConnectRoutes);
 app.use('/',addPost);
 app.use('/',addPost);
@@ -130,34 +133,37 @@ app.post("/sendEmail", (req, res) => {
   console.log("request came");
   let user = req.body;
   sendMail(user, info => {
-    console.log(`The mail has beed send 😃 and the id is ${info.messageId}`);
     res.send(info);
   });
 });
 
 async function sendMail(user, callback) {
-  // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    service: 'gmail',
+    auth: {
+      user: 'alatouatiii@gmail.com',
+      pass: '260758aa'
+    },  
+    tls: {
+      rejectUnauthorized: false
+  }
   
   });
 
   let mailOptions = {
-    from: '"Fun Of Heuristic"<example.gimail.com>', // sender address
-    to: user.email, // list of receivers
-    subject: "Wellcome to Fun Of Heuristic 👻", // Subject line
-    html: `<h1>Hi ${user.name}</h1><br>
+    from: '"Fun Of Heuristic"<example.gimail.com>',
+    to: user.email, 
+    subject: "Wellcome to Fun Of Heuristic 👻",
+    html: `<h1>Hi ${user.firstName}
     <h4>Thanks for joining us</h4>`
   };
 
-  // send mail with defined transport object
   let info = await transporter.sendMail(mailOptions);
 
   callback(info);
 }
 io.on('connection', function (socket) {
+ 
   const jwtToken =  socket.handshake.headers.authorization
   if(jwtToken){
   
@@ -169,6 +175,7 @@ io.on('connection', function (socket) {
             users.push(decoded.id)
           }
           sockets[decoded.id] = socket.id
+          console.log(users);
           const oneUser = userServices.getOneUser(decoded.id).then((res)=>{
             onlineUser = res;
           }).catch(err =>{
@@ -191,6 +198,21 @@ io.on('connection', function (socket) {
       console.log("offer",id);
       socket.to(id).emit("offer", socket.id, message);
     });
+  
+    function listener(data){
+        console.log(emmitter.listenerCount('newNotif'));
+        if(emmitter.listenerCount('newNotif')<=1){
+          console.log(data);
+          io.to(sockets[data.idOwner]).emit("notificationDetected",data)
+          console.log("dead0");
+        }else{
+          emmitter.removeListener('newNotif',listener)
+        };
+
+    };
+    
+    emmitter.on('newNotif', listener)
+    
     socket.on("answer", (id, message) => {
       console.log("answer",id);
       socket.to(id).emit("answer", socket.id, message);
@@ -198,6 +220,19 @@ io.on('connection', function (socket) {
     socket.on("candidate", (id, message) => {
       socket.to(id).emit("candidate", socket.id, message);
     });
+
+    function listener1(data){
+
+      if(emmitter.listenerCount('newNotifvote')<=1){
+        console.log("dead1");
+        io.to(sockets[data.idOwner]).emit("notificationDetected",data)
+      }else{
+        emmitter.removeListener('newNotifvote',listener1)
+      };
+
+  };
+  
+  emmitter.on('newNotifvote', listener1)
   socket.on('newDisscu',(value)=>{
   conversation = value.message
   console.log("conversation",conversation);
@@ -232,7 +267,6 @@ io.on('connection', function (socket) {
          }
           conversationServices.getOneConversation(resultsConv._id).then(
                 results=>{
-               
                     userServices.findByFilter(results).then(
                       checkforUser =>{
                           checkforUser.map(user =>{

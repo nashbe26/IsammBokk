@@ -2,33 +2,36 @@ const upVotes = require ('../models/upvotes');
 const Users = require ('../models/user');
 const Notfi = require('../models/notification');
 const Posts = require('../models/post');
-let newSocket=[]
+const emmitter = require('../services/eventBus')
+let newNotfi = {}
 const addUpvotes = async (req,res)=>{
     const upvotess = req.body
-   
+   console.log(upvotess);
     const findUpvote = await upVotes.find({'$and': [
         { 'userId': req.body.userId },
         { 'postId': req.body.postId },
 
     ]})
     let notifications = {
+        idOwner:upvotess.owner,
         idUser : req.body.userId,
         notification:{
           context:"liked your new post"
         }
     }
-
+    console.log(findUpvote);
     if(findUpvote.length == 0){
         const upvote = await upVotes.create(upvotess).then(async (results)=>{
-            await Users.findOneAndUpdate({_id:upvotess.userId},{"$push":{"upvotes": results._id,"notifications":notification._id}} ,{new: true})
-            await Posts.findOneAndUpdate({_id:upvotess.postId},{"$push":{"upvotes": results._id}},{new: true})
+           
             const notification = await Notfi.create(notifications).then(async data=>{
-                console.log(data);
-                const newNotfi = await Notfi.findById(data._id)
+                 newNotfi = await await Notfi.findById(data._id).populate('idUser')
+                await Users.findOneAndUpdate({_id:upvotess.userId},{"$push":{"upvotes": results._id,"notifications":data._id}} ,{new: true})
             })
-            io.on('connection', function (socket) {
-                socket.emit("notificationDetected",newNotfi);
-            })   
+
+            await Posts.findOneAndUpdate({_id:upvotess.postId},{"$push":{"upvotes": results._id}},{new: true})
+            emmitter.emit("newNotifvote",newNotfi);
+          
+
             res.status(200).json({value:'true'})
         }).catch(err =>{
             console.log(err);
