@@ -22,7 +22,6 @@ const deleteHomework = async (req,res) =>{
 }
 const showHomework = async (req,res)=>{
     let id = req.params.id
-    console.log("showCours", id );
     await HomeworkRes.findById(id).then(results=>{
         console.log(results);
         res.status(200).json(results)

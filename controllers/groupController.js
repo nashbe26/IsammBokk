@@ -50,7 +50,7 @@ const groupAdd = async (req,res)=>{
 }
 const showOneGroup = async (req,res)=>{
     let id = req.params.id
- 
+    console.log("dsdsdsd");
     await Group.findById(id).populate({path:'posts',
     populate : {
       path : 'user'
@@ -64,7 +64,6 @@ const showOneGroup = async (req,res)=>{
 }
 const showOneGroupId = async (req,res)=>{
     const groupId = req.params.id;
-    console.log(groupId,"groupId");
     await User.findById(groupId).populate({path:'groupId',populate:{
         path:'admin'
     }}).then(results=>{

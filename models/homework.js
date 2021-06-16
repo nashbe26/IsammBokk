@@ -11,10 +11,22 @@ const newCours = new Schema ({
     description:{
         type:String
     },
-    Student:{
+    niveau:{
+        type:String
+    },  
+    classRoom:{
+        type:String
+    },
+    date:{
+        type:String
+    },
+    hours:{
+        type:String
+    },
+    Student:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
-    },
+    }],
     userId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'

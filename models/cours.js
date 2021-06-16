@@ -24,7 +24,11 @@ const newCours = new Schema ({
     lien:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'links'
-    }
+    },
+    student:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    }],
 },{timestamps:true})
 
 const Cours = mongoose.model('Cours',newCours);

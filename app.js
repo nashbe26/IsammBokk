@@ -153,9 +153,10 @@ async function sendMail(user, callback) {
   let mailOptions = {
     from: '"Fun Of Heuristic"<example.gimail.com>',
     to: user.email, 
-    subject: "Wellcome to Fun Of Heuristic 👻",
+    subject: "Approuver votre compte Uninet",
     html: `<h1>Hi ${user.firstName}
-    <h4>Thanks for joining us</h4>`
+    <h4>Votre compte est approuvé. vous pouvez accéder au siteweb  <a href="http://localhost:4200/accueil">via ce lien</a></h4>
+    `
   };
 
   let info = await transporter.sendMail(mailOptions);

@@ -15,7 +15,7 @@ const  postUser = async (req,res)=>{
 const approveUser = async (req,res)=>{
     let id = req.params.id
     console.log("dddddddd",id );
-    await User.findOneAndUpdate({_id:id},{accountStatus:'valid'},{new: true}).then(data=>{
+    await User.findByIdAndUpdate(id,{verify:'valid'},{new: true}).then(data=>{
         console.log(data);
         res.status(200).json(data)
     }).catch(err =>{
@@ -32,16 +32,12 @@ const approveCours = async (req,res)=>{
               const data2 =  await Cours.find({hours:cour.hours})
           
 
-         let udid = uid(25)
               
                 if(data2.length != 1 && data.length != 1){
-
                     await Cours.findByIdAndUpdate(cour._id,{"etat": "pending"},{new: true})
                     res.json({exist : true})}
             else{
-                await Cours.findByIdAndUpdate(cour._id,{"etat": "valid"},{new: true}).then(async check=>{
-              
-                   
+                await Cours.findByIdAndUpdate(cour._id,{"etat": "valid"},{new: true}).then(async check=>{     
                 })
                 res.status(200).json(data)
                 console.log("ahwla");

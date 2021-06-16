@@ -10,6 +10,14 @@ async function getOneUser(userId){
   populate : {
     path : 'users'
   }
+}).populate({path : 'homework',
+populate : {
+  path : 'userId'
+}
+}).populate({path : 'cours',
+populate : {
+  path : 'userId'
+}
 })
 }
 

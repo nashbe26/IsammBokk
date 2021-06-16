@@ -77,6 +77,10 @@ const NewUser = new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'group'
     }],
+    cours:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Cours'
+    }],
     verify:{
         type:String,default:"pending"
     }
