@@ -34,7 +34,7 @@ const approveCours = async (req,res)=>{
 
               
                 if(data2.length != 1 && data.length != 1){
-                    await Cours.findByIdAndUpdate(cour._id,{"etat": "pending"},{new: true})
+                    await Cours.findByIdAndUpdate(cour._id,{"etat": "rejeté"},{new: true})
                     res.json({exist : true})}
             else{
                 await Cours.findByIdAndUpdate(cour._id,{"etat": "valid"},{new: true}).then(async check=>{     
